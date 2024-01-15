@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 // user details schema
 const userSchema = new mongoose.Schema(
   {
-    userName: {
+    username: {
       type: String,
       required: true,
       unique: true,
@@ -21,7 +21,8 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// each document in User collection will adhere to the defined userSchema
 const User = mongoose.model("User", userSchema);
 
-export default User;
+module.exports = User;
 // now we can use this schema anywhere in the project

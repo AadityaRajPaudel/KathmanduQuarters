@@ -2,9 +2,11 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const userRouter = require("./routes/user.route");
+const userRouter = require("./routes/user.route.js");
+const authRouter = require("./routes/auth.route.js");
 
 dotenv.config();
+app.use(express.json());
 
 mongoose
   .connect(process.env.MONGO)
@@ -21,3 +23,16 @@ app.listen(3000, () => {
 
 // creating an api route
 app.use("/api/user", userRouter);
+
+app.use("/api/auth", authRouter);
+
+// global error handler middleware to catch and handle errors
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});

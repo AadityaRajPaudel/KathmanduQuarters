@@ -28,8 +28,8 @@ export default function Header() {
             About
           </li>
         </Link>
-        <Link to="/sign-in">
-          <li className="hover:cursor-pointer hover:underline">Sign In</li>
+        <Link to="/sign-up">
+          <li className="hover:cursor-pointer hover:underline">Sign Up</li>
         </Link>
       </ul>
     </header>

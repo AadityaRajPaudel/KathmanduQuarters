@@ -31,7 +31,7 @@ export default function SignUp() {
       setLoading(false);
       // check if json response from post request is success or failure
       console.log(data);
-      if (!data.success === false) {
+      if (data.success === false) {
         setError(true);
         return;
       }

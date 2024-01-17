@@ -1,12 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 
 export default function SignIn() {
   const [formData, setFormData] = React.useState({});
-  const [error, setError] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
+  // const [error, setError] = React.useState(false);
+  // const [loading, setLoading] = React.useState(false);
+  const { error, loading } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData((prevFormData) => {
@@ -19,8 +26,7 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
-      setError(false);
+      dispatch(signInStart());
       // make post request to the server which triggers user.auth.js route and get response in 'res' variable
       const res = await fetch("/api/auth/signin", {
         method: "POST",
@@ -30,17 +36,16 @@ export default function SignIn() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      setLoading(false);
       // check if json response from post request is success or failure
       console.log(data);
-
       if (data.success === false) {
-        setError(true);
+        dispatch(signInFailure(data.message));
         return;
       }
+      dispatch(signInSuccess(data)); // data goes to action.payload
       navigate("/");
     } catch (error) {
-      setError(true);
+      dispatch(signInFailure(error.message));
     }
   };
 

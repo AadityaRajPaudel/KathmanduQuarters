@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    avatar: {
+      type: String,
+      default:
+        "https://www.mykhel.com/thumb/250x90x250/football/players/4/19054.jpg",
+    },
   },
   { timestamps: true }
 );

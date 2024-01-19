@@ -77,7 +77,7 @@ export default function SignUp() {
         <div>
           <p>
             Already have an account?{" "}
-            <Link to={"/sign-in"}>
+            <Link to={"/signin"}>
               <span className="text-blue-500 hover:underline cursor-pointer">
                 Sign In
               </span>

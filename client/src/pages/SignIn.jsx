@@ -79,7 +79,7 @@ export default function SignIn() {
         <div>
           <p>
             Dont have an account?{" "}
-            <Link to={"/sign-up"}>
+            <Link to={"/signup"}>
               <span className="text-blue-500 hover:underline cursor-pointer">
                 Sign Up
               </span>

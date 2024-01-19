@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import OAuth from "../components/OAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [formData, setFormData] = React.useState({});
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prevFormData) => {
@@ -36,6 +38,7 @@ export default function SignUp() {
         setError(true);
         return;
       }
+      navigate("/signin");
     } catch (error) {
       setError(true);
     }

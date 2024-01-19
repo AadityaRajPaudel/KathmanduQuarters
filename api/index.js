@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const userRouter = require("./routes/user.route.js");
 const authRouter = require("./routes/auth.route.js");
 const cookieParser = require("cookie-parser");
+const listingRouter = require("./routes/listing.route.js");
 
 dotenv.config();
 app.use(express.json());
@@ -27,6 +28,7 @@ app.listen(3000, () => {
 app.use("/api/user", userRouter);
 
 app.use("/api/auth", authRouter);
+app.use("/api/listing", listingRouter);
 
 // global error handler middleware to catch and handle errors
 app.use((err, req, res, next) => {

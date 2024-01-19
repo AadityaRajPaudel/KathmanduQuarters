@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import {
   getDownloadURL,
@@ -12,8 +13,12 @@ import {
   updateUserStart,
   updateUserSuccess,
   updateUserFailure,
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
+import { createNextState } from "@reduxjs/toolkit";
 
 export default function Profile() {
   const fileRef = useRef(null);
@@ -24,6 +29,7 @@ export default function Profile() {
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (file) {
@@ -83,6 +89,36 @@ export default function Profile() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+      navigate("/signin");
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+
+  const handleSignout = () => {
+    try {
+      dispatch(deleteUserSuccess());
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+
   return (
     <div className="p-6 w-96 mx-auto">
       <h1 className="text-4xl font-semibold text-center my-3">Profile</h1>
@@ -138,12 +174,28 @@ export default function Profile() {
         >
           Update
         </button>
+        <Link to="/createlisting" className="mx-auto">
+          <button
+            type="button"
+            className="bg-green-600 text-white uppercase p-3 rounded-lg hover:opacity-90"
+          >
+            Create Listing
+          </button>
+        </Link>
       </form>
       <div className="my-3 flex justify-between">
-        <span className="text-red-600 hover:cursor-pointer hover:underline">
+        <span
+          className="text-red-600 hover:cursor-pointer hover:underline"
+          onClick={handleDeleteUser}
+        >
           Delete account
         </span>
-        <span className="hover:cursor-pointer hover:underline">Sign out</span>
+        <span
+          className="hover:cursor-pointer hover:underline"
+          onClick={handleSignout}
+        >
+          Sign out
+        </span>
       </div>
       <p className="text-green-600">{updateSuccess ? "Update success" : ""}</p>
     </div>

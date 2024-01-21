@@ -26,6 +26,8 @@ export default function Profile() {
   const [file, setFile] = useState(undefined);
   const [filePercentage, setFilePercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
+  const [showListingsError, setShowListingsError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
@@ -119,6 +121,37 @@ export default function Profile() {
     }
   };
 
+  const handleShowListings = async () => {
+    try {
+      setShowListingsError(false);
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        setShowListingsError(true);
+        return;
+      }
+      setShowListingsError(false);
+      console.log(data);
+      setUserListings(data);
+    } catch (error) {
+      setShowListingsError(true);
+    }
+  };
+
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   return (
     <div className="p-6 w-96 mx-auto">
       <h1 className="text-4xl font-semibold text-center my-3">Profile</h1>
@@ -174,13 +207,10 @@ export default function Profile() {
         >
           Update
         </button>
-        <Link to="/createlisting" className="mx-auto">
-          <button
-            type="button"
-            className="bg-green-600 text-white uppercase p-3 rounded-lg hover:opacity-90"
-          >
+        <Link to="/createlisting" className="block">
+          <div className="bg-green-600 text-white uppercase p-3 rounded-lg hover:opacity-90 text-center">
             Create Listing
-          </button>
+          </div>
         </Link>
       </form>
       <div className="my-3 flex justify-between">
@@ -198,6 +228,39 @@ export default function Profile() {
         </span>
       </div>
       <p className="text-green-600">{updateSuccess ? "Update success" : ""}</p>
+      <button
+        className="text-green-600 hover:underline w-full"
+        onClick={handleShowListings}
+      >
+        Show Listings
+      </button>
+      {userListings &&
+        userListings.map((listing) => (
+          <div
+            key={listing._id}
+            className="flex justify-between items-center border border-gray-400 rounded-lg my-3 p-3"
+          >
+            <img
+              src={listing.imageUrls[0]}
+              alt="listing"
+              className="w-20 h-20 object-contain"
+            />
+            <Link to={`/listing/${listing._id}`}>
+              <p className="hover:underline truncate">{listing.name}</p>
+            </Link>
+            <div className="flex gap-1 flex-col">
+              <Link to={`/updatelisting/${listing._id}`}>
+                <button className="text-green-600 hover:underline">Edit</button>
+              </Link>
+              <button
+                className="text-red-600 hover:underline"
+                onClick={() => handleListingDelete(listing._id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }

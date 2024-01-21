@@ -6,7 +6,9 @@ const userRouter = require("./routes/user.route.js");
 const authRouter = require("./routes/auth.route.js");
 const cookieParser = require("cookie-parser");
 const listingRouter = require("./routes/listing.route.js");
+const cors = require("cors");
 
+app.use(cors());
 dotenv.config();
 app.use(express.json());
 app.use(cookieParser());

@@ -24,7 +24,9 @@ const updateUser = async (req, res, next) => {
     );
     const { password, ...rest } = updatedUser._doc;
     res.status(200).json(rest);
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 const deleteUser = async (req, res, next) => {
@@ -50,4 +52,16 @@ const getUserListings = async (req, res, next) => {
   }
 };
 
-module.exports = { deleteUser, updateUser, getUserListings };
+const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return next(errorThrower(404, "User Not Found"));
+
+    const { password: pass, ...rest } = user._doc;
+    res.status(200).json(rest);
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+module.exports = { deleteUser, updateUser, getUserListings, getUser };

@@ -283,6 +283,8 @@ export default function UpdateListing() {
               className="p-3 mr-1 rounded-lg"
               id="regularPrice"
               placeholder="Regular Price"
+              onChange={handleChange}
+              value={formData.regularPrice}
               required
             />
             <span className="mt-3">Regular Price</span>

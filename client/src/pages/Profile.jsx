@@ -23,6 +23,7 @@ import { createNextState } from "@reduxjs/toolkit";
 export default function Profile() {
   const fileRef = useRef(null);
   const { currentUser } = useSelector((state) => state.user);
+  console.log(currentUser);
   const [file, setFile] = useState(undefined);
   const [filePercentage, setFilePercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
@@ -246,7 +247,9 @@ export default function Profile() {
               className="w-20 h-20 object-contain"
             />
             <Link to={`/listing/${listing._id}`}>
-              <p className="hover:underline truncate">{listing.name}</p>
+              <p className="hover:underline truncate text-wrap p-2">
+                {listing.name}
+              </p>
             </Link>
             <div className="flex gap-1 flex-col">
               <Link to={`/updatelisting/${listing._id}`}>

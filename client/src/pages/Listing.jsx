@@ -24,7 +24,6 @@ export default function Listing() {
   const { currentUser } = useSelector((state) => state.user);
 
   SwiperCore.use([Navigation]);
-
   useEffect(() => {
     setLoading(true);
     const fetchListing = async () => {
@@ -88,7 +87,7 @@ export default function Listing() {
         </span>
         {listing.offer && (
           <span className="bg-green-600 p-3 text-white rounded-lg ml-6">
-            Rs {Number(listing.discountedPrice)} per month with discount
+            Rs {Number(listing.discountedPrice)} discount
           </span>
         )}
       </div>
@@ -119,7 +118,7 @@ export default function Listing() {
           <span>{listing.furnished ? `Furnished` : "Not Furnished"}</span>
         </li>
       </ul>
-      {currentUser._id !== listing.userRef && !contact && (
+      {currentUser && currentUser._id !== listing.userRef && !contact && (
         <div>
           <button
             className="bg-slate-700 text-white p-3 hover:opacity-90 ml-6 mt-6 rounded-lg w-96"

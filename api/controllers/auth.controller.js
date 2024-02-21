@@ -3,8 +3,38 @@ const User = require("../models/user.model.js");
 const errorThrower = require("../utils/error.js");
 const jwt = require("jsonwebtoken");
 
+// const signup = async (req, res, next) => {
+//   const { username, email, password } = req.body;
+
+//   const encryptedPassword = bcrypt.hashSync(password, 10);
+
+//   const newUser = new User({
+//     username,
+//     email,
+//     password: encryptedPassword,
+//   });
+//   try {
+//     await newUser.save();
+//     res.status(201).json({ message: "User added successfully!" });
+//   } catch (error) {
+//     // error is passed to the global error handler middleware
+//     next(error);
+//   }
+// };
 const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
+
+  // Regular expression to enforce password validation
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      success: false,
+      error:
+        "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number.",
+    });
+  }
+
   const encryptedPassword = bcrypt.hashSync(password, 10);
 
   const newUser = new User({

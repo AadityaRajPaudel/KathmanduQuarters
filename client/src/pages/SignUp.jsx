@@ -38,7 +38,6 @@ export default function SignUp() {
         setError(true);
         return;
       }
-      navigate("/signin");
     } catch (error) {
       setError(true);
     }
@@ -62,6 +61,7 @@ export default function SignUp() {
           id="email"
           onChange={handleChange}
         />
+
         <input
           type="password"
           placeholder="password"
@@ -87,7 +87,16 @@ export default function SignUp() {
             </Link>
           </p>
         </div>
+        <p className="text-xs text-gray-500 text-wrap ">
+          *Password must contain at least 8 characters, including one uppercase
+          letter, one lowercase letter, and one number.
+        </p>
       </form>
+      {error && (
+        <div className="w-full text-center text-red-600">
+          Cannot create account, check credentials
+        </div>
+      )}
     </div>
   );
 }

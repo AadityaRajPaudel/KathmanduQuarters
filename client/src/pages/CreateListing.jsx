@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import {
   getDownloadURL,
   getStorage,
@@ -7,15 +7,13 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateListing() {
-  const [files, setFiles] = React.useState([]);
   const { currentUser } = useSelector((state) => state.user);
-  const [imageUploadError, setImageUploadError] = React.useState(false);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [error, setError] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [formData, setFormData] = React.useState({
+  const navigate = useNavigate();
+  const [files, setFiles] = useState([]);
+  const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
     description: "",
@@ -29,48 +27,51 @@ export default function CreateListing() {
     parking: false,
     furnished: false,
   });
-
+  const [imageUploadError, setImageUploadError] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
+  console.log(formData);
   const handleImageSubmit = (e) => {
-    setIsUploading(true);
-    // + formData.imageUrls.length or someting
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
       setImageUploadError(false);
-      const promises = []; // contains promises having downloadURL for each image
+      const promises = [];
 
       for (let i = 0; i < files.length; i++) {
         promises.push(storeImage(files[i]));
       }
-      // after all promises are resolved
       Promise.all(promises)
         .then((urls) => {
           setFormData({
             ...formData,
             imageUrls: formData.imageUrls.concat(urls),
           });
-          setIsUploading(false);
+          setImageUploadError(false);
+          setUploading(false);
         })
-        .catch(() => {
-          setImageUploadError(true);
-          setIsUploading(false);
+        .catch((err) => {
+          setImageUploadError("Image upload failed (2 mb max per image)");
+          setUploading(false);
         });
-      return;
+    } else {
+      setImageUploadError("You can only upload 6 images per listing");
+      setUploading(false);
     }
-    setImageUploadError(true);
-    return;
   };
 
-  console.log(formData);
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
       const storage = getStorage(app);
       const fileName = new Date().getTime() + file.name;
       const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          console.log("progress");
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
         },
         (error) => {
           reject(error);
@@ -84,16 +85,15 @@ export default function CreateListing() {
     });
   };
 
-  const handleDelete = (index) => {
+  const handleRemoveImage = (index) => {
     setFormData({
       ...formData,
       imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
   };
 
-  // all form data like name description, etc all formData state
   const handleChange = (e) => {
-    if (e.target.id === "sell" || e.target.id === "rent") {
+    if (e.target.id === "sale" || e.target.id === "rent") {
       setFormData({
         ...formData,
         type: e.target.id,
@@ -101,9 +101,9 @@ export default function CreateListing() {
     }
 
     if (
+      e.target.id === "parking" ||
       e.target.id === "furnished" ||
-      e.target.id === "offer" ||
-      e.target.id === "parking"
+      e.target.id === "offer"
     ) {
       setFormData({
         ...formData,
@@ -132,7 +132,6 @@ export default function CreateListing() {
         return setError("Discount price must be lower than regular price");
       setLoading(true);
       setError(false);
-
       const res = await fetch("/api/listing/create", {
         method: "POST",
         headers: {
@@ -148,25 +147,26 @@ export default function CreateListing() {
       if (data.success === false) {
         setError(data.message);
       }
-      navigate(`/listing/${data._id}`); // redirect to the route unique to each listing based on its id
+      navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
-
   return (
-    <main className="p-3">
-      <h1 className="font-semibold text-3xl my-3 text-center">
-        Create Listing
+    <main className="p-3 max-w-4xl mx-auto">
+      <h1 className="text-3xl font-semibold text-center my-7">
+        Create a Listing
       </h1>
-      <form className="max-w-2xl mx-auto">
-        <div className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4 flex-1">
           <input
             type="text"
             placeholder="Name"
-            className="p-3 rounded-lg focus:outline-none"
+            className="border p-3 rounded-lg"
             id="name"
+            maxLength="62"
+            minLength="10"
             required
             onChange={handleChange}
             value={formData.name}
@@ -174,7 +174,7 @@ export default function CreateListing() {
           <textarea
             type="text"
             placeholder="Description"
-            className="p-3 rounded-lg focus:outline-none"
+            className="border p-3 rounded-lg"
             id="description"
             required
             onChange={handleChange}
@@ -183,159 +183,188 @@ export default function CreateListing() {
           <input
             type="text"
             placeholder="Address"
-            className="p-3 rounded-lg focus:outline-none"
+            className="border p-3 rounded-lg"
             id="address"
             required
             onChange={handleChange}
             value={formData.address}
           />
-        </div>
-
-        <div className="flex gap-4 my-4">
-          <input
-            type="checkbox"
-            id="sell"
-            onChange={handleChange}
-            checked={formData.type === "sell"}
-          />
-          <label htmlFor="sell">Sell</label>
-          <input
-            type="checkbox"
-            id="rent"
-            onChange={handleChange}
-            checked={formData.type === "rent"}
-          />
-          <label htmlFor="rent">Rent</label>
-          <input
-            type="checkbox"
-            id="parking"
-            onChange={handleChange}
-            checked={formData.parking}
-          />
-          <label htmlFor="parking">Parking Spot</label>
-          <input
-            type="checkbox"
-            id="furnished"
-            onChange={handleChange}
-            checked={formData.furnished}
-          />
-          <label htmlFor="furnished">Furnished</label>
-          <input
-            type="checkbox"
-            id="offer"
-            onChange={handleChange}
-            checked={formData.offer}
-          />
-          <label htmlFor="offer">Offer</label>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <input
-              type="number"
-              max={10}
-              min={1}
-              className="p-3 mr-1 rounded-lg"
-              id="bedrooms"
-              placeholder="Beds"
-              required
-              onChange={handleChange}
-              value={formData.bedrooms}
-            />
-            <span className="mt-3">Bedrooms</span>
+          <div className="flex gap-6 flex-wrap">
+            <div className="flex gap-2">
+              <input
+                type="checkbox"
+                id="sale"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "sale"}
+              />
+              <span>Sell</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="checkbox"
+                id="rent"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.type === "rent"}
+              />
+              <span>Rent</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="checkbox"
+                id="parking"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.parking}
+              />
+              <span>Parking spot</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="checkbox"
+                id="furnished"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.furnished}
+              />
+              <span>Furnished</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="checkbox"
+                id="offer"
+                className="w-5"
+                onChange={handleChange}
+                checked={formData.offer}
+              />
+              <span>Offer</span>
+            </div>
           </div>
-
-          <div>
-            <input
-              type="number"
-              max={10}
-              min={1}
-              className="p-3 mr-1 rounded-lg"
-              id="bathrooms"
-              placeholder="Baths"
-              required
-              onChange={handleChange}
-              value={formData.bathrooms}
-            />
-            <span className="mt-3">Bathrooms</span>
-          </div>
-          <div>
-            <input
-              type="number"
-              className="p-3 mr-1 rounded-lg"
-              id="regularPrice"
-              placeholder="Regular Price"
-              required
-            />
-            <span className="mt-3">Regular Price</span>
-          </div>
-          {formData.offer && (
-            <div>
+          <div className="flex flex-wrap gap-6">
+            <div className="flex items-center gap-2">
               <input
                 type="number"
-                className="p-3 mr-1 rounded-lg"
-                id="discountedPrice"
-                placeholder="Discounted Price"
+                id="bedrooms"
+                min="1"
+                max="10"
+                required
+                className="p-3 border border-gray-300 rounded-lg"
                 onChange={handleChange}
-                value={formData.discountedPrice}
+                value={formData.bedrooms}
               />
-              <span className="mt-3">Discounted Price</span>
+              <p>Beds</p>
             </div>
-          )}
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                id="bathrooms"
+                min="1"
+                max="10"
+                required
+                className="p-3 border border-gray-300 rounded-lg"
+                onChange={handleChange}
+                value={formData.bathrooms}
+              />
+              <p>Baths</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                id="regularPrice"
+                min="50"
+                max="100000000"
+                required
+                className="p-3 border border-gray-300 rounded-lg"
+                onChange={handleChange}
+                value={formData.regularPrice}
+              />
+              <div className="flex flex-col items-center">
+                <p>Regular price</p>
+                {formData.type === "rent" && (
+                  <span className="text-xs">(Rs / month)</span>
+                )}
+              </div>
+            </div>
+            {formData.offer && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  id="discountedPrice"
+                  min="0"
+                  max="100000000"
+                  required
+                  className="p-3 border border-gray-300 rounded-lg"
+                  onChange={handleChange}
+                  value={formData.discountedPrice}
+                />
+                <div className="flex flex-col items-center">
+                  <p>Discounted price</p>
+
+                  {formData.type === "rent" && (
+                    <span className="text-xs">($ / month)</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="my-5">
-          <p>
-            <span className="font-semibold">Images: </span>
-            <span className="italic">
-              The first image will be cover (max 6)
+        <div className="flex flex-col flex-1 gap-4">
+          <p className="font-semibold">
+            Images:
+            <span className="font-normal text-gray-600 ml-2">
+              The first image will be the cover (max 6)
             </span>
           </p>
-          <input
-            type="file"
-            onChange={(e) => setFiles(e.target.files)}
-            id="images"
-            className="p-3 border border-gray-300 my-3 rounded-lg"
-            accept="image/*"
-            multiple
-          />
-          <button
-            type="button"
-            className="ml-6 p-3 border border-green-600 rounded-lg text-green-600  hover:shadow-lg"
-            onClick={handleImageSubmit}
-          >
-            {isUploading ? "Uploading..." : "Upload"}
-          </button>
-        </div>
-        <div className="mb-5 font-light">
-          {imageUploadError
-            ? "Image Upload Error"
-            : formData.imageUrls.map((url, index) => (
-                <div
-                  key={url}
-                  className="flex justify-between border border-gray-400 rounded-lg p-3"
+          <div className="flex gap-4">
+            <input
+              onChange={(e) => setFiles(e.target.files)}
+              className="p-3 border border-gray-300 rounded w-full"
+              type="file"
+              id="images"
+              accept="image/*"
+              multiple
+            />
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={handleImageSubmit}
+              className="p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80"
+            >
+              {uploading ? "Uploading..." : "Upload"}
+            </button>
+          </div>
+          <p className="text-red-700 text-sm">
+            {imageUploadError && imageUploadError}
+          </p>
+          {formData.imageUrls.length > 0 &&
+            formData.imageUrls.map((url, index) => (
+              <div
+                key={url}
+                className="flex justify-between p-3 border items-center"
+              >
+                <img
+                  src={url}
+                  alt="listing image"
+                  className="w-20 h-20 object-contain rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
                 >
-                  <img
-                    className="w-24 h-24 object-contain"
-                    src={url}
-                    alt="image"
-                  ></img>
-                  <button
-                    type="button"
-                    className="text-red-600 uppercase"
-                    onClick={() => handleDelete(index)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
+                  Delete
+                </button>
+              </div>
+            ))}
+          <button
+            disabled={loading || uploading}
+            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          >
+            {loading ? "Creating..." : "Create listing"}
+          </button>
+          {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
-        <div
-          onClick={handleSubmit}
-          className="bg-slate-600 p-3 rounded-lg text-white text-center font-semibold hover:opacity-90 hover:cursor-pointer"
-        >
-          {loading ? "CREATING..." : "CREATE LISTING"}
-        </div>
-        <p className="text-red-600 font-light">{error && error.message}</p>
       </form>
     </main>
   );

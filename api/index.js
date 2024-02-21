@@ -28,7 +28,6 @@ app.listen(3000, () => {
 
 // creating an api route
 app.use("/api/user", userRouter);
-
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 

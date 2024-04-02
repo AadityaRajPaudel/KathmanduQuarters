@@ -36,9 +36,7 @@ export default function About() {
         <h1 className=" font-semibold">Contributors:</h1>
         <div className="italic">
           <ul>
-            <li>Aaditya Raj Paudel - 211603</li>
-            <li>Bijaya Kumar Pokharel - 211622</li>
-            <li>Samridda Dongol - 211643</li>
+            <li>Your name here</li>
           </ul>
         </div>
       </div>

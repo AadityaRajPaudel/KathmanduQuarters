@@ -70,10 +70,13 @@ export default function Listing() {
         </>
       )}
       <h1 className="my-7 text-center text-3xl font-semibold">
-        {listing.name} - Rs {listing.regularPrice} / month *{" "}
-        <span className="font-extralight text-sm italic">
-          (price does NOT include the discount)
-        </span>
+        {listing.name}
+        <div className="text-2xl font-normal border py-4 my-3">
+          Rs {listing.regularPrice} / month *{" "}
+          <span className="font-extralight text-xs italic">
+            (price does NOT include the discount)
+          </span>
+        </div>
       </h1>
       <div className="flex items-center px-6">
         <div className="flex items-center gap-2">
@@ -87,7 +90,8 @@ export default function Listing() {
         </span>
         {listing.offer && (
           <span className="bg-green-600 p-3 text-white rounded-lg ml-6">
-            Rs {Number(listing.discountedPrice)} discount
+            Rs {Number(listing.regularPrice) - Number(listing.discountedPrice)}{" "}
+            discount
           </span>
         )}
       </div>

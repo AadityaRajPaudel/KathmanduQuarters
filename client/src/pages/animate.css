@@ -1,0 +1,22 @@
+@keyframes gradient {
+  0% {
+    color: #000000; /* Black */
+    background-position: 0% 50%;
+  }
+  50% {
+    color: #000000; /* Black */
+    background-position: 100% 50%;
+  }
+  100% {
+    color: #ffd700; /* Golden */
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background: linear-gradient(90deg, #000000, #ffd700);
+  background-size: 200% 100%;
+  animation: gradient 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

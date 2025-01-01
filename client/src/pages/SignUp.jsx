@@ -1,10 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import OAuth from "../components/OAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [formData, setFormData] = React.useState({});
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prevFormData) => {
@@ -31,6 +34,7 @@ export default function SignUp() {
       setLoading(false);
       // check if json response from post request is success or failure
       console.log(data);
+      navigate("/signin");
       if (data.success === false) {
         setError(true);
         return;
@@ -58,6 +62,7 @@ export default function SignUp() {
           id="email"
           onChange={handleChange}
         />
+
         <input
           type="password"
           placeholder="password"
@@ -72,17 +77,27 @@ export default function SignUp() {
         >
           {loading ? "Loading.." : "Sign Up"}
         </button>
+        <OAuth />
         <div>
           <p>
             Already have an account?{" "}
-            <Link to={"/sign-in"}>
+            <Link to={"/signin"}>
               <span className="text-blue-500 hover:underline cursor-pointer">
                 Sign In
               </span>
             </Link>
           </p>
         </div>
+        <p className="text-xs text-gray-500 text-wrap ">
+          *Password must contain at least 8 characters, including one uppercase
+          letter, one lowercase letter, and one number.
+        </p>
       </form>
+      {error && (
+        <div className="w-full text-center text-red-600">
+          Cannot create account, check credentials
+        </div>
+      )}
     </div>
   );
 }

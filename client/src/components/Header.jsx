@@ -28,7 +28,7 @@ export default function Header() {
     }
   }, [location.search]);
   return (
-    <header className="bg-slate-300 flex justify-between items-center p-3 px-8">
+    <header className="bg-slate-300 flex justify-between items-center p-3 px-8 sticky">
       <Link to={"/"}>
         <h1 className="text-sm sm:text-xl">
           <span className="text-slate-500 font-semibold">Kathmandu</span>

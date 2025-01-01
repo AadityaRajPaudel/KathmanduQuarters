@@ -7,6 +7,7 @@ const authRouter = require("./routes/auth.route.js");
 const cookieParser = require("cookie-parser");
 const listingRouter = require("./routes/listing.route.js");
 const cors = require("cors");
+const path = require("path");
 
 app.use(cors());
 dotenv.config();
@@ -16,13 +17,14 @@ app.use(cookieParser());
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
+    console.log(mongoose.connection.name);
     console.log("Connected to the database!");
   })
   .catch((err) => {
     console.log(err);
   });
 
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log("Server connected on port 3000...");
 });
 
@@ -30,6 +32,11 @@ app.listen(3000, () => {
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 // global error handler middleware to catch and handle errors
 app.use((err, req, res, next) => {

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { errorThrower } from "./error.js";
 
-export const verifyToken = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   const token = req.cookies.access_token;
 
   if (!token) return next(errorThrower(401, "Unauthorized"));
@@ -13,3 +13,4 @@ export const verifyToken = (req, res, next) => {
     next(); // runs the user.route's update's second function
   });
 };
+export default verifyToken;

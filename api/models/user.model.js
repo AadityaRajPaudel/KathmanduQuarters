@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // user details schema
 const userSchema = new mongoose.Schema(
@@ -27,7 +27,5 @@ const userSchema = new mongoose.Schema(
 );
 
 // each document in User collection will adhere to the defined userSchema
-const User = mongoose.model("User", userSchema);
-
-module.exports = User;
+export const User = mongoose.model("User", userSchema);
 // now we can use this schema anywhere in the project

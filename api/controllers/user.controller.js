@@ -1,9 +1,9 @@
-const User = require("../models/user.model");
-const errorThrower = require("../utils/error");
-const bcrypt = require("bcrypt");
-const Listing = require("../models/listing.model.js");
+import User from "../models/user.model.js";
+import errorThrower from "../utils/error.js";
+import bcrypt from "bcrypt";
+import Listing from "../models/listing.model.js";
 
-const updateUser = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
   if (req.user.id !== req.params.id)
     return next(errorThrower(401, "You can only update your own account"));
   try {
@@ -29,7 +29,7 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-const deleteUser = async (req, res, next) => {
+export const deleteUser = async (req, res, next) => {
   if (req.user.id !== req.params.id)
     return next(errorThrower(401, "Unauthorized deletion"));
   try {
@@ -41,7 +41,7 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-const getUserListings = async (req, res, next) => {
+export const getUserListings = async (req, res, next) => {
   if (req.user.id !== req.params.id)
     return next(401, "You can only see your own listings");
   try {
@@ -52,7 +52,7 @@ const getUserListings = async (req, res, next) => {
   }
 };
 
-const getUser = async (req, res, next) => {
+export const getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return next(errorThrower(404, "User Not Found"));
@@ -63,5 +63,3 @@ const getUser = async (req, res, next) => {
     next(error.message);
   }
 };
-
-module.exports = { deleteUser, updateUser, getUserListings, getUser };

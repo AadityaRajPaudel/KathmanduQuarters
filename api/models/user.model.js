@@ -27,5 +27,6 @@ const userSchema = new mongoose.Schema(
 );
 
 // each document in User collection will adhere to the defined userSchema
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
 // now we can use this schema anywhere in the project

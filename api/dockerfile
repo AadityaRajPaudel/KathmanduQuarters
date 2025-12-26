@@ -1,0 +1,14 @@
+FROM node:18
+
+WORKDIR /app
+
+COPY package.json .
+RUN npm install
+
+# copy all code into working directory of container
+COPY api/* .
+
+# expose the container to the container port 3000
+EXPOSE 3000 
+
+CMD ["npm", "run", "dev"]

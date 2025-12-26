@@ -1,7 +1,7 @@
-const Listing = require("../models/listing.model.js");
-const errorThrower = require("../utils/error.js");
+import Listing from "../models/listing.model.js";
+import errorThrower from "../utils/error.js";
 
-const createListing = async (req, res, next) => {
+export const createListing = async (req, res, next) => {
   try {
     const listing = await Listing.create(req.body);
     return res.status(201).json(listing);
@@ -12,7 +12,7 @@ const createListing = async (req, res, next) => {
   }
 };
 
-const deleteListing = async (req, res, next) => {
+export const deleteListing = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
 
   if (!listing) return next(errorThrower(404, "Listing not found"));
@@ -30,7 +30,7 @@ const deleteListing = async (req, res, next) => {
   }
 };
 
-const updateListing = async (req, res, next) => {
+export const updateListing = async (req, res, next) => {
   const listing = await Listing.findById(req.params.id);
   if (!listing) return next(errorThrower(404, "Listing not found"));
   if (req.user.id !== listing.userRef)
@@ -48,7 +48,7 @@ const updateListing = async (req, res, next) => {
   }
 };
 
-const getListing = async (req, res, next) => {
+export const getListing = async (req, res, next) => {
   try {
     const listing = await Listing.findById(req.params.id);
     if (!listing) return next(errorThrower(404, "Listing not found"));
@@ -59,7 +59,7 @@ const getListing = async (req, res, next) => {
 };
 
 // for searching listings functionality
-const getListings = async (req, res, next) => {
+export const getListings = async (req, res, next) => {
   try {
     let offer = req.query.offer; // offer can be true, false, or undefined
 
@@ -101,12 +101,4 @@ const getListings = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  createListing,
-  deleteListing,
-  updateListing,
-  getListing,
-  getListings,
 };

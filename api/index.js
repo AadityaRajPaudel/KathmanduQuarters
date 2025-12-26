@@ -1,16 +1,18 @@
-const express = require("express");
+import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
+import mongoose from "mongoose";
+import { userRouter } from "./routes/user.route.js";
+import { authRouter } from "./routes/auth.route.js";
+import { listingRouter } from "./routes/listing.route.js";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+
 const app = express();
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const userRouter = require("./routes/user.route.js");
-const authRouter = require("./routes/auth.route.js");
-const cookieParser = require("cookie-parser");
-const listingRouter = require("./routes/listing.route.js");
-const cors = require("cors");
-const path = require("path");
 
 app.use(cors());
-dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
 
@@ -21,12 +23,13 @@ mongoose
     console.log("Connected to the database!");
   })
   .catch((err) => {
-    console.log(err);
+    console.log(process.env.JWT_SECRET);
   });
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url); // returns the absolute path of this file
+const __dirname = path.dirname(__filename); // returns directory of this file, i.e c:users/acer/.../api
 
 app.listen(process.env.PORT, () => {
-  console.log("Server connected on port 3000...");
+  console.log("Server connected on port " + process.env.PORT);
 });
 
 // creating an api route
@@ -34,9 +37,9 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
-app.use(express.static(path.join(__dirname, "client", "dist")));
+app.use(express.static(path.join(__dirname, "..", "client", "dist")));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "client", "dist", "index.html"));
 });
 
 // global error handler middleware to catch and handle errors

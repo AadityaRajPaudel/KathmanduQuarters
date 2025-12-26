@@ -1,7 +1,7 @@
-const bcrypt = require("bcrypt");
-const User = require("../models/user.model.js");
-const errorThrower = require("../utils/error.js");
-const jwt = require("jsonwebtoken");
+import bcrypt from "bcrypt";
+import User from "../models/user.model.js";
+import errorThrower from "../utils/error.js";
+import jwt from "jsonwebtoken";
 
 // const signup = async (req, res, next) => {
 //   const { username, email, password } = req.body;
@@ -21,17 +21,29 @@ const jwt = require("jsonwebtoken");
 //     next(error);
 //   }
 // };
-const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+export const signup = async (req, res, next) => {
+  let { username, email, password } = req.body;
+  username = username.trim();
 
   // Regular expression to enforce password validation
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   if (!passwordRegex.test(password)) {
     return res.status(400).json({
       success: false,
       error:
         "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number.",
+    });
+  } else if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid email format.",
+    });
+  } else if (username.length < 6) {
+    return res.status(400).json({
+      success: false,
+      error: "Please enter username more than 6 characters.",
     });
   }
 
@@ -51,7 +63,7 @@ const signup = async (req, res, next) => {
   }
 };
 
-const signin = async (req, res, next) => {
+export const signin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     const validUser = await User.findOne({ email });
@@ -72,7 +84,7 @@ const signin = async (req, res, next) => {
   }
 };
 
-const google = async (req, res, next) => {
+export const google = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     // if user exists, create token and return user details, else register the user by creating a random password
@@ -106,10 +118,4 @@ const google = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  signup,
-  signin,
-  google,
 };

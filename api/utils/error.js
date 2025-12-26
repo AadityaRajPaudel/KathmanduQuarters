@@ -4,7 +4,5 @@ const errorThrower = (statusCode, message) => {
   customError.message = message;
   return customError;
 };
-
-module.exports = errorThrower;
-
+export default errorThrower;
 // this function can be used anywhere to get a desired error

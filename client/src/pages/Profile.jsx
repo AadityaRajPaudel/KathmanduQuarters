@@ -164,7 +164,7 @@ export default function Profile() {
         accept="image/*"
       />
       <img
-        src={formData.avatar || currentUser.avatar}
+        src={currentUser.avatar}
         alt="profile"
         onClick={() => fileRef.current.click()} // another way doesnt work
         className="rounded-full w-18 h-18 object-cover mx-auto my-3 hover:cursor-pointer"

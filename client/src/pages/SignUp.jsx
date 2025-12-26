@@ -33,14 +33,16 @@ export default function SignUp() {
       const data = await res.json();
       setLoading(false);
       // check if json response from post request is success or failure
-      console.log(data);
-      navigate("/signin");
       if (data.success === false) {
-        setError(true);
+        setError(data.error);
+        setLoading(false);
         return;
       }
+      console.log(data);
+      navigate("/signin");
     } catch (error) {
-      setError(true);
+      setError(error.message);
+      setLoading(false);
     }
   };
 
@@ -54,6 +56,7 @@ export default function SignUp() {
           className="p-3 rounded-lg border"
           id="username"
           onChange={handleChange}
+          required
         />
         <input
           type="email"
@@ -61,6 +64,7 @@ export default function SignUp() {
           className="p-3 rounded-lg border"
           id="email"
           onChange={handleChange}
+          required
         />
 
         <input
@@ -69,6 +73,7 @@ export default function SignUp() {
           className="p-3 rounded-lg border"
           id="password"
           onChange={handleChange}
+          required
         />
         <button
           disabled={loading}
@@ -93,11 +98,7 @@ export default function SignUp() {
           letter, one lowercase letter, and one number.
         </p>
       </form>
-      {error && (
-        <div className="w-full text-center text-red-600">
-          Cannot create account, check credentials
-        </div>
-      )}
+      {error && <div className="w-full text-center text-red-600">{error}</div>}
     </div>
   );
 }

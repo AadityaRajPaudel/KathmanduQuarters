@@ -22,16 +22,28 @@ import jwt from "jsonwebtoken";
 //   }
 // };
 export const signup = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  let { username, email, password } = req.body;
+  username = username.trim();
 
   // Regular expression to enforce password validation
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   if (!passwordRegex.test(password)) {
     return res.status(400).json({
       success: false,
       error:
         "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number.",
+    });
+  } else if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid email format.",
+    });
+  } else if (username.length < 6) {
+    return res.status(400).json({
+      success: false,
+      error: "Please enter username more than 6 characters.",
     });
   }
 

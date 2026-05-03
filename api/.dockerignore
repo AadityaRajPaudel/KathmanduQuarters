@@ -1,1 +1,6 @@
-/api/node_modules
+node_modules
+.git
+.env
+dockerfile
+.dockerignore
+npm-debug.log

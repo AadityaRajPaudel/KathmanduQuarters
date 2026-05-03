@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: ./api #where dockerfile is
+    ports:
+      - "${PORT_SERVER}:3000" #container at port 3030 will run backend in host port(accessible) {PORT}
+    environment:
+      - PORT=${PORT_SERVER}
+      - MONGO=${MONGO}
+      - JWT_SECRET=${JWT_SECRET}
+
+  frontend:
+    build:
+      context: ./client
+    platform: linux/amd64
+    ports:
+      - "${PORT_CLIENT}:80"   #nginx runs host at port {PORT}
+    environment:
+      - PORT=${PORT_CLIENT}
+    depends_on:
+      - backend
+
+networks:
+  default:
+    driver: bridge

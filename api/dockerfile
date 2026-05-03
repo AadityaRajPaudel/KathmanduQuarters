@@ -1,14 +1,19 @@
-FROM node:18
+FROM node:20-alpine
 
+# Set the working directory for any subsequent ADD, COPY, CMD, ENTRYPOINT, or RUN instructions that follow it in the Dockerfile.
 WORKDIR /app
 
-COPY package.json .
+# copies package.json to the working directory i.e. '/app'
+COPY package*.json .
+
+# installs packages in the working directory
 RUN npm install
 
-# copy all code into working directory of container
-COPY api/* .
+# copy all code into working directory of container (. means /app)
+COPY . .
 
-# expose the container to the container port 3000
-EXPOSE 3000 
+# expose the container to the container port 3000, not usable by outside(host) world, this expose has to be same as server's listening port
+EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# run the server
+CMD ["npm", "start"]

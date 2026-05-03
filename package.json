@@ -1,6 +1,7 @@
 {
   "scripts": {
     "build": "npm install --prefix client && npm run build --prefix client && npm install --prefix api",
-    "start": "npm start --prefix api"
+    "start": "npm start --prefix api",
+    "_comment": "as json doesnt allow comments, this is done. This file is used for deployment and not for containerization."
   }
 }
